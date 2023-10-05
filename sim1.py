@@ -145,3 +145,4 @@ def get_table4():
                         print("{:.3f} & ".format(prob[r,k]), end = '', file=f)
                     else:
                         print("{:.3f} \\\\".format(prob[r,k]), file=f)
+            print("\n", file=f)

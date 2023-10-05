@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-os.environ['R_HOME'] = "/Library/Frameworks/R.framework/Resources"
+#os.environ['R_HOME'] = "/Library/Frameworks/R.framework/Resources"
 from rpy2 import robjects
 from rpy2.robjects import pandas2ri
 pandas2ri.activate()

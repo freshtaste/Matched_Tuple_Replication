@@ -49,7 +49,7 @@ def get_saved_results():
             print((q,k), file=f)
             print(result, file=f)
 
-    with open('simulation5_power_plots_new.pkl', 'wb') as f:
+    with open('sim3_power_plots.pkl', 'wb') as f:
         pickle.dump(results, f)
 
 
@@ -57,7 +57,7 @@ def get_Figure1_and_2():
     
     get_saved_results()
 
-    with open('simulation5_power_plots_new2.pkl', 'rb') as f:
+    with open('sim3_power_plots.pkl', 'rb') as f:
         results = pickle.load(f)
         
     import matplotlib.pyplot as plt
