@@ -11,11 +11,6 @@ def cover_rate(sample_size=1000, modelY='1', ntrials=2000):
         dgp = DGP(modelY, '8', sample_size)
         Yobs, D, A = dgp.get_data()
         inf = Inference2(Yobs, D, A, dgp.cluster, dgp.tuple_idx, dgp.tau)
-        #inf1 = Inference(dgp.Y, dgp.D, dgp.A, '8', tuple_idx=dgp.tuple_idx, tau=dgp.tau)
-        #cover[i,0] = 1 - inf1.inference()[1]
-        #cf_length[i,0] = inf1.se_tau10*1.96*2
-        #inf.inference('mp')
-        #print(inf.se_tau10 - inf1.se_tau10)
         cover[i,0] = inf.inference('mp')
         cf_length[i,0] = inf.se_tau10*1.96*2
         cover[i,1] = inf.inference('robust')
