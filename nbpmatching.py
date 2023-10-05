@@ -52,6 +52,7 @@ def match_tuple(X, num_factor):
     indices = []
     for f in range(num_factor):
         matched_idx = nbpmatching(X)
+        #matched_idx = matched_idx - 1 # comment out if save error message "IndexError: index 1280 is out of bounds for axis 0 with size 1280"
         X = np.mean(X[matched_idx], axis=1)
         indices.append(matched_idx)
     real_idx = indices[0]
