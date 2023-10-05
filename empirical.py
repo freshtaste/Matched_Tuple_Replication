@@ -7,10 +7,10 @@ class Inference(object):
         self.Yr = Yr
         self.tau1, self.tau2, self.tau12 = self.estimator()
         self.se_tau1, self.se_tau2, self.se_tau12 = self.inference()
-        #if np.isnan(self.tau1) or np.isnan(self.tau2) or \
-        #    np.isnan(self.se_tau1) or np.isnan(self.se_tau2):
-        #        self.tau1, self.tau2, self.tau12 = self.estimator_nan()
-        #        self.se_tau1, self.se_tau2, self.se_tau12 = self.inference_nan()
+        if np.isnan(self.tau1) or np.isnan(self.tau2) or \
+            np.isnan(self.se_tau1) or np.isnan(self.se_tau2):
+                self.tau1, self.tau2, self.tau12 = self.estimator_nan()
+                self.se_tau1, self.se_tau2, self.se_tau12 = self.inference_nan()
 
     def estimator(self):
         mu0 = np.mean(self.Y[:,:2])

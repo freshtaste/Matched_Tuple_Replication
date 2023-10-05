@@ -61,6 +61,34 @@ def get_table3():
                         print("{:.3f} & ".format(mse[r,k]), end = '', file=f)
                     else:
                         print("{:.3f} \\\\".format(mse[r,k]), file=f)
+                # for k in range(11):
+                #     if k<10:
+                #         if k in [0, 1, 2, 7, 8, 9]:
+                #             print("{:.3f} & ".format(mse[r,k]), end = '', file=f)
+                #     else:
+                #         print("{:.3f} \\\\".format(mse[r,k]), file=f)
+            print("\n", file=f)
+            
+
+def get_table8():
+    # set random seed
+    np.random.seed(123)
+    # report MSE
+    for i in range(6):
+        print("ModelY={} (MSE)".format(i+1))
+        mse = np.zeros((11,5))
+        for j in range(11):
+            tau11s, tau10s, theta1s, theta2s, theta12s = risk_parrell(1000, modelY=str(i+1), modelDA=str(j+1), ntrials=2000)
+            mse[j,0] = np.mean(theta1s**2)
+            mse[j,1] = np.mean(theta2s**2)
+            mse[j,2] = np.mean(theta12s**2)
+            mse[j,3] = np.mean(tau11s**2)
+            mse[j,4] = np.mean(tau10s**2)
+        mse = mse/mse[7]
+        mse = mse.T
+        with open("Table8.txt", "a") as f:
+            print("ModelY={}".format(i+1),file=f)
+            for r in range(5):
                 for k in range(11):
                     if k<10:
                         if k in [0, 1, 2, 7, 8, 9]:

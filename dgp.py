@@ -239,7 +239,6 @@ class DGP_Finite(DGP):
         self.tau = tau
 
         self.X = self.generate_X()
-        print(self.X[:10])
         self.D, self.A = self.generate_DA()
         self.Y, Yobs = self.generate_Y()
         self.tau10 = np.mean(self.Y['1,0']) - np.mean(self.Y['0,0'])

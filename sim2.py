@@ -14,15 +14,15 @@ cols += list(data.iloc[:,26:32].columns)
 cols += list(data.iloc[:,34:36].columns)
 cols += ['teachers']
 covariates = data[cols].to_numpy()
-covariates = covariates/np.std(covariates,axis=0)
 covariates = covariates - np.mean(covariates,axis=0)
+covariates = covariates/np.std(covariates,axis=0)
 # add a few noise to break the tie for S4
 covariates = covariates + 1e-5*np.random.normal(size=covariates.shape)
 model = sm.OLS(covariates[:,-1], -covariates[:,:-1])
 result = model.fit()
 beta = result.params
 residuals = result.resid
-print("Variance of Y0 vs epsilon",np.var(covariates[:,-1]), np.var(residuals))
+#print("Variance of Y0 vs epsilon",np.var(covariates[:,-1]), np.var(residuals))
 
 class DGP3(DGP2):
     
@@ -216,8 +216,8 @@ def get_table6():
         with open("Table6_part1.txt", "a") as f:
             print(m, file=f)
         qk_pairs = [(q,k) for q in [1,2,4,6,9] for k in [1,2,3,4,5,6]]
-        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=10, more=True, design='MT')
-                if m == 'MT2' else reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=10, more=False, design=m) for q, k in qk_pairs}
+        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=1000, more=True, design='MT')
+                if m == 'MT2' else reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=1000, more=False, design=m) for q, k in qk_pairs}
         results_null.append(result)
         for q in [1,2,4,6,9]:
             for k in [1,2,3,4,5,6]:
@@ -232,8 +232,8 @@ def get_table6():
         with open("Table6_part2.txt", "a") as f:
             print(m, file=f)
         qk_pairs = [(q,k) for q in [1,2,4,6,9] for k in [1,2,3,4,5,6]]
-        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=10, more=True, design='MT')
-                if m == 'MT2' else reject_prob_parrell(covariates, k, q, 1280, tau=0.02, ntrials=10, more=False, design=m) for q, k in qk_pairs}
+        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=1000, more=True, design='MT')
+                if m == 'MT2' else reject_prob_parrell(covariates, k, q, 1280, tau=0.02, ntrials=1000, more=False, design=m) for q, k in qk_pairs}
         results_null.append(result)
         for q in [1,2,4,6,9]:
             for k in [1,2,3,4,5,6]:
@@ -242,3 +242,29 @@ def get_table6():
                         print("{:.3f} & ".format(result[(q,k)]), end = '', file=f)
                     else:
                         print("{:.3f} \\\\".format(result[(q,k)]), file=f)
+                        
+                        
+def get_table10():
+    # load covariates data
+    data = pd.read_csv("FactorialData/educationData2008.csv")
+    cols = ['Total']
+    cols += list(data.iloc[:,26:32].columns)
+    cols += list(data.iloc[:,34:36].columns)
+    cols += ['teachers']
+    covariates = data[cols].to_numpy()
+    # standardize covariates
+    covariates = covariates - np.mean(covariates,axis=0)
+    covariates = covariates/np.std(covariates,axis=0)
+    # add a few noise to break the tie for S4
+    covariates = covariates + 1e-5*np.random.normal(size=covariates.shape)
+    regressor = -covariates[:,:-1]
+    regressor = sm.add_constant(regressor)
+    # transform regressor to pandas dataframe with column name cols[:-1]
+    regressor = pd.DataFrame(regressor, columns=['constant']+cols[:-1])
+    model = sm.OLS(covariates[:,-1], regressor)
+    result = model.fit(cov_type='HC0')
+    table = result.summary().as_latex()
+    # save table to txt file
+    with open("Table10.txt", "a") as f:
+        print(table, file=f)
+        
