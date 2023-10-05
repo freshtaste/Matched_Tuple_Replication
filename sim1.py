@@ -2,14 +2,16 @@ import numpy as np
 from dgp import DGP
 from inference import Inference
 from joblib import Parallel, delayed
+import multiprocessing
 
 
 def reject_prob_parrell(n, modelY='1', modelDA='1', ate=0, ntrials=1000):
     def process(i):
+        np.random.seed(123 + i)
         dgp = DGP(modelY,modelDA,n,tau=ate)
         inf = Inference(dgp.Y, dgp.D, dgp.A, modelDA, tuple_idx=dgp.tuple_idx, tau=dgp.tau)
         return inf.inference()
-    num_cores = 8
+    num_cores = multiprocessing.cpu_count() - 1
     ret = Parallel(n_jobs=num_cores)(delayed(process)(i) for i in range(ntrials))
     phi_tau11s, phi_tau10s, phi_theta1s, phi_theta2s, phi_theta12s = np.zeros(ntrials), np.zeros(ntrials), np.zeros(ntrials), np.zeros(ntrials), np.zeros(ntrials)
     for i in range(ntrials):
@@ -22,10 +24,11 @@ def reject_prob_parrell(n, modelY='1', modelDA='1', ate=0, ntrials=1000):
 
 def risk_parrell(n, modelY='1', modelDA='1', ate=0, ntrials=1000):
     def process(i):
+        np.random.seed(123 + i)
         dgp = DGP(modelY,modelDA,n,tau=ate)
         inf = Inference(dgp.Y, dgp.D, dgp.A, modelDA, tuple_idx=dgp.tuple_idx, tau=dgp.tau)
         return inf.tau11, inf.tau10, inf.theta1, inf.theta2, inf.theta12
-    num_cores = 8
+    num_cores = multiprocessing.cpu_count() - 1
     ret = Parallel(n_jobs=num_cores)(delayed(process)(i) for i in range(ntrials))
     tau11s, tau10s, theta1s, theta2s, theta12s = np.zeros(ntrials), np.zeros(ntrials), np.zeros(ntrials), np.zeros(ntrials), np.zeros(ntrials)
     for i in range(ntrials):
@@ -45,7 +48,7 @@ def get_table3():
         print("ModelY={} (MSE)".format(i+1))
         mse = np.zeros((11,5))
         for j in range(11):
-            tau11s, tau10s, theta1s, theta2s, theta12s = risk_parrell(1000, modelY=str(i+1), modelDA=str(j+1), ntrials=2000)
+            tau11s, tau10s, theta1s, theta2s, theta12s = risk_parrell(1000, modelY=str(i+1), modelDA=str(j+1), ntrials=5)
             mse[j,0] = np.mean(theta1s**2)
             mse[j,1] = np.mean(theta2s**2)
             mse[j,2] = np.mean(theta12s**2)

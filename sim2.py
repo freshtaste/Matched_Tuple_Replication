@@ -159,6 +159,7 @@ def reject_prob_parrell(X, num_factor, Xdim, sample_size, tau=0, ntrials=1000, m
         more = True
         design = 'MT'
     def process(qk):
+        np.random.seed(123 + qk)
         dgp = DGP3(num_factor, Xdim, sample_size, X, tau, more, design)
         Y, D, tuple_idx = dgp.Y, dgp.D, dgp.tuple_idx
         inf = Inferece2(Y, D, tuple_idx, design)
@@ -172,6 +173,7 @@ def risk_parrell(X, num_factor, Xdim, sample_size, tau=0, ntrials=1000, more=Fal
         more = True
         design = 'MT'
     def process(qk):
+        np.random.seed(123 + qk)
         dgp = DGP3(num_factor, Xdim, sample_size, X, tau, more, design)
         Y, D, tuple_idx = dgp.Y, dgp.D, dgp.tuple_idx
         ate = np.mean(Y[D[:,0]==1]) - np.mean(Y[D[:,0]==0])
