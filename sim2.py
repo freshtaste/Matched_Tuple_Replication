@@ -192,8 +192,7 @@ def get_table5():
         with open("Table5.txt", "a") as f:
             print(m, file=f)
         qk_pairs = [(q,k) for q in [1,2,4,6,9] for k in [1,2,3,4,5,6]]
-        result = {(q,k): risk_parrell(covariates, k, q, 1280, tau=0, ntrials=1000, more=True, design='MT') 
-                if m == 'MT2' else risk_parrell(covariates, k, q, 1280, tau=0, ntrials=1000, more=False, design=m) for q, k in qk_pairs}
+        result = {(q,k): risk_parrell(covariates, k, q, 1280, tau=0, ntrials=1000, more=True, design='MT') for q, k in qk_pairs}
         results_mse.append(result)
         baseline = results_mse[0][(1,1)]
         for q in [1,2,4,6,9]:
@@ -216,8 +215,7 @@ def get_table6():
         with open("Table6_part1.txt", "a") as f:
             print(m, file=f)
         qk_pairs = [(q,k) for q in [1,2,4,6,9] for k in [1,2,3,4,5,6]]
-        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=1000, more=True, design='MT')
-                if m == 'MT2' else reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=1000, more=False, design=m) for q, k in qk_pairs}
+        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=1000, more=True, design='MT') for q, k in qk_pairs}
         results_null.append(result)
         for q in [1,2,4,6,9]:
             for k in [1,2,3,4,5,6]:
@@ -232,8 +230,7 @@ def get_table6():
         with open("Table6_part2.txt", "a") as f:
             print(m, file=f)
         qk_pairs = [(q,k) for q in [1,2,4,6,9] for k in [1,2,3,4,5,6]]
-        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=1000, more=True, design='MT')
-                if m == 'MT2' else reject_prob_parrell(covariates, k, q, 1280, tau=0.02, ntrials=1000, more=False, design=m) for q, k in qk_pairs}
+        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=1000, more=True, design='MT') for q, k in qk_pairs}
         results_null.append(result)
         for q in [1,2,4,6,9]:
             for k in [1,2,3,4,5,6]:
