@@ -29,7 +29,7 @@ random.seed(123)
 #get_table8()
 
 # 8. Get Table 9
-get_table9()
+#get_table9()
 
 # 9. Get Table 10
 #get_table10()

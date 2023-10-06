@@ -1,5 +1,9 @@
 import numpy as np
 import pandas as pd
+# include upper directory
+import sys
+sys.path.append("../")
+
 from multiple_factor import DGP2, Inferece2
 from joblib import Parallel, delayed
 import multiprocessing
@@ -8,16 +12,17 @@ from nbpmatching import match_tuple
 from scipy.stats import chi2
 import pickle
 
-np.random.seed(123)
+
 # load covariates data
-data = pd.read_csv("FactorialData/educationData2008.csv")
+np.random.seed(123)
+data = pd.read_csv("../FactorialData/educationData2008.csv")
 cols = ['Total']
 cols += list(data.iloc[:,26:32].columns)
 cols += list(data.iloc[:,34:36].columns)
 cols += ['teachers']
 covariates = data[cols].to_numpy()
-covariates = covariates/np.std(covariates,axis=0)
 covariates = covariates - np.mean(covariates,axis=0)
+covariates = covariates/np.std(covariates,axis=0)
 # add a few noise to break the tie for S4
 covariates = covariates + 1e-5*np.random.normal(size=covariates.shape)
 model = sm.OLS(covariates[:,-1], -covariates[:,:-1])
@@ -136,25 +141,6 @@ class DGP3(DGP2):
             Y = gamma*self.Xtotal.dot(beta) \
                 + self.D[:,0]*self.tau + eps
         return Y
-    
-    
-def reject_prob(X, num_factor, Xdim, sample_size, tau=0, ntrials=1000, more=False, design='MT'):
-    phi_tau = np.zeros(ntrials)
-    for i in range(ntrials):
-        dgp = DGP3(num_factor, Xdim, sample_size, X, tau, more, design)
-        Y, D, tuple_idx = dgp.Y, dgp.D, dgp.tuple_idx
-        inf = Inferece2(Y, D, tuple_idx, design)
-        phi_tau[i] = inf.phi_tau
-    return np.mean(phi_tau)
-
-def risk(X, num_factor, Xdim, sample_size, tau=0, ntrials=1000, more=False, design='MT'):
-    mse = np.zeros(ntrials)
-    for i in range(ntrials):
-        dgp = DGP3(num_factor, Xdim, sample_size, X, tau, more, design)
-        Y, D, tuple_idx = dgp.Y, dgp.D, dgp.tuple_idx
-        ate = np.mean(Y[D[:,0]==1]) - np.mean(Y[D[:,0]==0])
-        mse[i] = (ate - tau)**2
-    return np.mean(mse)
 
 def reject_prob_parrell(X, num_factor, Xdim, sample_size, tau=0, ntrials=1000, more=False, design='MT'):
     if design == 'MT2':
@@ -185,6 +171,67 @@ def risk_parrell(X, num_factor, Xdim, sample_size, tau=0, ntrials=1000, more=Fal
     return np.mean(ret)
 
 
+# Table 5
+def get_table5():
+    # set random seed
+    np.random.seed(123)
+    designs = ['MT', 'C', 'MT2', 'S4', 'MP-B', 'RE']
+    designs = ['MT', 'C']
+    results_mse = []
+
+    for m in designs:
+        with open("Table5.txt", "a") as f:
+            print(m, file=f)
+        qk_pairs = [(q,k) for q in [1,2,4,6,9] for k in [1,2,3,4,5,6]]
+        result = {(q,k): risk_parrell(covariates, k, q, 1280, tau=0, ntrials=50, more=False, design=m) for q, k in qk_pairs}
+        results_mse.append(result)
+        baseline = results_mse[0][(1,1)]
+        for q in [1,2,4,6,9]:
+            for k in [1,2,3,4,5,6]:
+                with open("Table5.txt", "a") as f:
+                    if k<6:
+                        print("{:.3f} & ".format(result[(q,k)]/baseline), end = '', file=f)
+                    else:
+                        print("{:.3f} \\\\".format(result[(q,k)]/baseline), file=f)
+
+
+# Table 6
+def get_table6():
+    # set random seed
+    np.random.seed(123)
+    designs = ['MT', 'MT2', 'C', 'S4']
+    results_null = []
+
+    for m in designs:
+        with open("Table6_part1.txt", "a") as f:
+            print(m, file=f)
+        qk_pairs = [(q,k) for q in [1,2,4,6,9] for k in [1,2,3,4,5,6]]
+        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0, ntrials=50, more=False, design=m) for q, k in qk_pairs}
+        results_null.append(result)
+        for q in [1,2,4,6,9]:
+            for k in [1,2,3,4,5,6]:
+                with open("Table6_part1.txt", "a") as f:
+                    if k<6:
+                        print("{:.3f} & ".format(result[(q,k)]), end = '', file=f)
+                    else:
+                        print("{:.3f} \\\\".format(result[(q,k)]), file=f)
+                    
+
+    for m in designs:
+        with open("Table6_part2.txt", "a") as f:
+            print(m, file=f)
+        qk_pairs = [(q,k) for q in [1,2,4,6,9] for k in [1,2,3,4,5,6]]
+        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0.02, ntrials=50, more=False, design=m) for q, k in qk_pairs}
+        results_null.append(result)
+        for q in [1,2,4,6,9]:
+            for k in [1,2,3,4,5,6]:
+                with open("Table6_part2.txt", "a") as f:
+                    if k<6:
+                        print("{:.3f} & ".format(result[(q,k)]), end = '', file=f)
+                    else:
+                        print("{:.3f} \\\\".format(result[(q,k)]), file=f)
+                        
+
 def get_saved_results():
     # set random seed
     np.random.seed(123)
@@ -195,12 +242,12 @@ def get_saved_results():
     for i, (q,k) in enumerate(model_specs):
         result = {}
         def processInput(t):
-            c = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=500, more=False, design='C')
-            s4 = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=500, more=False, design='S4')
+            c = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=50, more=False, design='C')
+            s4 = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=50, more=False, design='S4')
             with open("sim3_runtime.txt", "a") as f:
                 print("start mt", file=f)
-            mt = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=500, more=False, design='MT')
-            mt2 = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=500, more=True, design='MT')
+            mt = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=50, more=False, design='MT')
+            mt2 = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=50, more=True, design='MT')
             with open("sim3_runtime.txt", "a") as f:
                 print("finish mt", file=f)
             return (mt,mt2,c,s4)
@@ -287,3 +334,13 @@ def get_Figure1_and_2():
         axs[i].legend(prop={'size': 24})
         
     plt.savefig("Figure1.pdf")
+    
+    
+# 1. Get Table 5
+get_table5()
+
+# 2. Get Table 6
+get_table6()
+
+# 3. Get Figure 1 and 2
+get_Figure1_and_2()

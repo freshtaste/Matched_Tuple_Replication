@@ -33,13 +33,14 @@ def nbpmatching(X):
     nbpmatch2 = robjects.r('''
         nbpmatch <- function(df) {
             library("nbpMatching")
+            set.seed(123)
             df.1 <- runner(df, idcol=1)
             arr = c(as.numeric(unlist(df.1$matches$halves["Group1.Row"])), 
             as.numeric(unlist(df.1$matches$halves["Group2.Row"])))
             matrix(arr, nrow = length(arr)/2, ncol = 2)
         }
         ''')
-    res = nbpmatch(df).astype(int)
+    res = nbpmatch2(df).astype(int)
     return res
 
 def match_tuple(X, num_factor):
@@ -52,8 +53,13 @@ def match_tuple(X, num_factor):
     #out = np.zeros((int(n/group_size), group_size))
     indices = []
     for f in range(num_factor):
+        if X.shape[1] == 1:
+            tmp = X[:,0]
+            X = np.zeros((len(X),2))
+            X[:,0] = tmp
+            X[:,1] = tmp
         matched_idx = nbpmatching(X)
-        #matched_idx = matched_idx - 1 # comment out if save error message "IndexError: index 1280 is out of bounds for axis 0 with size 1280"
+        matched_idx = matched_idx - 1
         X = np.mean(X[matched_idx], axis=1)
         indices.append(matched_idx)
     real_idx = indices[0]
