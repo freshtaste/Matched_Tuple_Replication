@@ -44,7 +44,6 @@ def get_table9():
     # set random seed
     np.random.seed(123)
     modelYs = ['1','2','3','4','5','6']
-    sample_sizes = [50, 100, 200, 500, 1000]
 
     sample_sizes = [40, 80, 160, 480, 1000]
 
