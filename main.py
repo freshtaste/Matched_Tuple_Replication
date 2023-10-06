@@ -14,10 +14,10 @@ random.seed(123)
 #get_table4()
 
 # 3. Get Table 5
-get_table5()
+#get_table5()
 
 # 4. Get Table 6
-get_table6()
+#get_table6()
 
 # 5. Get Figure 1 and 2
 #get_Figure1_and_2()

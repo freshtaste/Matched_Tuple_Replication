@@ -51,7 +51,7 @@ def get_table9():
     qk_pairs = [(q,k) for q in modelYs for k in sample_sizes]
     def processInput(qk):
         q, k = qk
-        np.random.seed(123 + q + k)
+        np.random.seed(123 + int(q)*10 + sample_sizes.index(k))
         cover, cf = cover_rate(k, q)
         return (q,k,cover,cf)
     num_cores = multiprocessing.cpu_count()
@@ -75,7 +75,7 @@ def get_table9():
     
     def processInput2(qk):
         q, k = qk
-        np.random.seed(123 + q - k)
+        np.random.seed(123 - int(q)*10 + sample_sizes.index(k))
         cover, cf = cover_rate_finite(k, q)
         return (q,k,cover,cf)
     num_cores = multiprocessing.cpu_count()
