@@ -195,12 +195,12 @@ def get_saved_results():
     for i, (q,k) in enumerate(model_specs):
         result = {}
         def processInput(t):
-            c = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=500, more=False, design='C')
-            s4 = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=500, more=False, design='S4')
+            c = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=1000, more=False, design='C')
+            s4 = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=1000, more=False, design='S4')
             with open("sim3_runtime.txt", "a") as f:
                 print("start mt", file=f)
-            mt = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=500, more=False, design='MT')
-            mt2 = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=500, more=True, design='MT')
+            mt = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=1000, more=False, design='MT')
+            mt2 = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=1000, more=True, design='MT')
             with open("sim3_runtime.txt", "a") as f:
                 print("finish mt", file=f)
             return (mt,mt2,c,s4)
