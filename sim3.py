@@ -197,22 +197,22 @@ def get_saved_results():
         def processInput(t):
             c = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=1000, more=False, design='C')
             s4 = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=1000, more=False, design='S4')
-            with open("sim3_runtime.txt", "a") as f:
-                print("start mt", file=f)
+            #with open("sim3_runtime.txt", "a") as f:
+            #    print("start mt", file=f)
             mt = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=1000, more=False, design='MT')
             mt2 = reject_prob_parrell(covariates, k, q, 1280, tau=t, ntrials=1000, more=True, design='MT')
-            with open("sim3_runtime.txt", "a") as f:
-                print("finish mt", file=f)
+            #with open("sim3_runtime.txt", "a") as f:
+            #    print("finish mt", file=f)
             return (mt,mt2,c,s4)
         #ret = Parallel(n_jobs=num_cores)(delayed(processInput)(t) for t in taus_list[i])
         ret = []
         for t in taus_list[i]:
-            with open("sim3_runtime.txt", "a") as f:
-                print(t, (q,k), file=f)
+            #with open("sim3_runtime.txt", "a") as f:
+            #    print(t, (q,k), file=f)
             tmp = processInput(t)
             ret.append(tmp)
-            with open("sim3_runtime.txt", "a") as f:
-                print(tmp, file=f)
+            #with open("sim3_runtime.txt", "a") as f:
+            #    print(tmp, file=f)
             
         #ret = [processInput(t) for t in taus_list[i]]
         result['MT'] = [r[0] for r in ret]
@@ -221,9 +221,9 @@ def get_saved_results():
         result['S4'] = [r[3] for r in ret]
         results["q={},k={}".format(q,k)] = result
         print(q,k)
-        with open("simu3.txt", "a") as f:
-            print((q,k), file=f)
-            print(result, file=f)
+        #with open("simu3.txt", "a") as f:
+        #    print((q,k), file=f)
+        #    print(result, file=f)
 
     with open('sim3_power_plots.pkl', 'wb') as f:
         pickle.dump(results, f)
