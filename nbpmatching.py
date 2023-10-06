@@ -20,6 +20,7 @@ def nbpmatching(X):
     nbpmatch = robjects.r('''
         nbpmatch <- function(df) {
             library("nbpMatching")
+            set.seed(123)
             df.dist <- gendistance(df, idcol=1)
             df.mdm <- distancematrix(df.dist)
             df.match <- nonbimatch(df.mdm)

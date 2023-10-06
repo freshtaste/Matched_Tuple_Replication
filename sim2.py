@@ -8,6 +8,7 @@ from nbpmatching import match_tuple
 from scipy.stats import chi2
 
 # load covariates data
+np.random.seed(123)
 data = pd.read_csv("FactorialData/educationData2008.csv")
 cols = ['Total']
 cols += list(data.iloc[:,26:32].columns)

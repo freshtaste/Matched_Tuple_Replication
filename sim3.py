@@ -4,7 +4,7 @@ import pickle
 import statsmodels.api as sm
 import pandas as pd
 
-
+np.random.seed(123)
 # load covariates data
 data = pd.read_csv("FactorialData/educationData2008.csv")
 cols = ['Total']
