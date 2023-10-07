@@ -75,6 +75,9 @@ class DGP3(DGP2):
                 D[idx[:,c]] = np.array([np.array(self.all_treatments[c])]*int(self.n/len(self.all_treatments)))
         elif self.design == 'C':
             D = np.array(self.all_treatments*int(self.n/len(self.all_treatments)))
+            # randomly permute the treatment assignment
+            idx = np.random.permutation(self.n)
+            D = D[idx]
         elif self.design == 'S4':
             self.tuple_idx = np.zeros(self.n)
             D = np.zeros((self.n, self.num_factor))

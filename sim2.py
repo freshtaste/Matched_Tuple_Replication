@@ -69,6 +69,9 @@ class DGP3(DGP2):
                 D[idx[:,c]] = np.array([np.array(self.all_treatments[c])]*int(self.n/len(self.all_treatments)))
         elif self.design == 'C':
             D = np.array(self.all_treatments*int(self.n/len(self.all_treatments)))
+            # randomly permute the treatment assignment
+            idx = np.random.permutation(self.n)
+            D = D[idx]
         elif self.design == 'S4':
             self.tuple_idx = np.zeros(self.n)
             D = np.zeros((self.n, self.num_factor))
@@ -233,7 +236,7 @@ def get_table6():
         with open("Table6_part2.txt", "a") as f:
             print(m, file=f)
         qk_pairs = [(q,k) for q in [1,2,4,6,9] for k in [1,2,3,4,5,6]]
-        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0.02, ntrials=1000, more=False, design=m) for q, k in qk_pairs}
+        result = {(q,k): reject_prob_parrell(covariates, k, q, 1280, tau=0.1, ntrials=1000, more=False, design=m) for q, k in qk_pairs}
         results_null.append(result)
         for q in [1,2,4,6,9]:
             for k in [1,2,3,4,5,6]:
