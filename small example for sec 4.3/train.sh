@@ -9,7 +9,7 @@
 #SBATCH --time=0-12:00:00
 #SBATCH --cpus-per-task=1
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=40
+#SBATCH --ntasks-per-node=50
 #SBATCH --mail-type=all
 #SBATCH --mail-user=jliu32@chicagobooth.edu
 

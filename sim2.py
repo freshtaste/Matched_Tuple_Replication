@@ -23,7 +23,7 @@ model = sm.OLS(covariates[:,-1], -covariates[:,:-1])
 result = model.fit()
 beta = result.params
 residuals = result.resid
-#print("Variance of Y0 vs epsilon",np.var(covariates[:,-1]), np.var(residuals))
+print("Variance of Y0 vs epsilon",np.var(covariates[:,-1]), np.var(residuals))
 
 class DGP3(DGP2):
     
