@@ -55,6 +55,7 @@ class DGP3(DGP2):
     def generate_X(self):
         idx = np.random.choice(len(self.total), self.n, replace=True)
         total = self.total[idx]
+        total = total + 1e-5*np.random.normal(size=total.shape) # add a few noise to break the tie for S4
         self.Xtotal = total[:,:-1]
         X = total[:,:self.Xdim]
         self.Y0 = total[:,-1]
