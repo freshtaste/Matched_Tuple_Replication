@@ -251,9 +251,9 @@ def get_table12():
         sample_sizes_repeat = sample_sizes*2
         for j in range(len(sample_sizes)*2):
             if j < len(sample_sizes)*2 - 1:
-                print("$3n={}$ & ".format(sample_sizes_repeat[j]), end = '', file=f)
+                print("3$n$={} & ".format(sample_sizes_repeat[j]), end = '', file=f)
             else:
-                print("$3n={}$ \\\\".format(sample_sizes_repeat[j]), file=f)
+                print("3$n$={} \\\\".format(sample_sizes_repeat[j]), file=f)
         
         for i in range(len(modelYs)*3):
             for j in range(len(sample_sizes)*2):

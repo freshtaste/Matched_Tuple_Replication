@@ -7,7 +7,7 @@ from empirical_results import get_Table7, get_table11
 import random
 
 random.seed(123)
-
+"""
 # 1. Get Table 3
 get_table3()
 
@@ -37,6 +37,6 @@ get_table10()
 
 # 10. get Table 11
 get_table11()
-
+"""
 # 11. get Table 12
 get_table12()
