@@ -58,12 +58,12 @@ class DGP3(DGP2):
             self.tuple_idx = self.tuple_idx.reshape(-1,self.tuple_size)
         
     def generate_X(self):
-        idx = np.random.choice(len(self.total), self.n, replace=False)
+        idx = np.random.choice(len(self.total), self.n, replace=True)
         total = self.total[idx]
         self.Xtotal = total[:,:-1]
         X = total[:,:self.Xdim]
         self.Y0 = total[:,-1]
-        return X
+        return X + 1e-5*np.random.normal(size=covariates.shape)
     
     def generate_D(self):
         if self.design == 'MT':

@@ -30,6 +30,32 @@ def get_imputed_outcome(df, method='homo'):
                 df['Y{}'.format(t)].iloc[i] = df_search.loc[df_search['dist']==min_dist, 'Y'].iloc[0]
 
     return df[['Y0', 'Y1', 'Y2']]
+
+
+def get_calibrated_outcome(df, method='homo'):
+    df = df.copy()
+    if method == 'homo':
+        df['Y0'] = df['Y'].copy()
+        df['Y1'] = df['Y'].copy()
+        df['Y2'] = df['Y'].copy()
+    else:
+        covariates = df[['constant', 'male_male', 'female_female', 'male_mixed', 'female_mixed',
+                        'highcapture','highcapital', 'continuous_covariate']]
+        model = sm.OLS(df['Y'], covariates)
+        result = model.fit()
+        beta = result.params
+        residuals = result.resid
+        #print("Variance of Y0 vs epsilon",np.var(df['Y']), np.var(residuals))
+        
+        eps = np.random.normal(0, np.sqrt(np.var(residuals)), size=len(df))
+        
+        covariates = covariates.values
+        gamma = 5
+        df['Y0'] = covariates.dot(beta) + eps
+        df['Y1'] = covariates.dot(beta)*gamma - np.mean(covariates.dot(beta)*(gamma-1)) + eps
+        df['Y2'] = covariates.dot(beta)*gamma*2 - np.mean(covariates.dot(beta)*(gamma*2-1)) + eps
+
+    return df[['Y0', 'Y1', 'Y2']]
             
 
 class DGP4():
@@ -163,7 +189,7 @@ def cover_rate(df, sample_size=900, modelY='homo', population='super', ntrials=2
     cover2 = np.zeros((ntrials, 3))
     cf_length1 = np.zeros((ntrials, 3))
     cf_length2 = np.zeros((ntrials, 3))
-    Ys = get_imputed_outcome(df, modelY)
+    Ys = get_calibrated_outcome(df, modelY)
     for i in range(ntrials):
         dgp = DGP4(sample_size, df['strata'].values, df['continuous_covariate'].values, Ys.values)
         if population == 'super':
@@ -216,6 +242,8 @@ def get_table12():
     df_wave6['Y'] = df_wave6.realfinalprofit
     # fill nan with 0
     df_wave6['Y'] = df_wave6['Y'].fillna(0)
+    df_wave6['constant'] = 1
+    
     
     # start simulation
     modelYs = ['homo','hetero']
@@ -251,19 +279,28 @@ def get_table12():
         sample_sizes_repeat = sample_sizes*2
         for j in range(len(sample_sizes)*2):
             if j < len(sample_sizes)*2 - 1:
-                print("3$n$={} & ".format(sample_sizes_repeat[j]), end = '', file=f)
+                if j == len(sample_sizes) - 1:
+                    print("3$n$={} & & ".format(sample_sizes_repeat[j]), end = '', file=f)
+                else:
+                    print("3$n$={} & ".format(sample_sizes_repeat[j]), end = '', file=f)
             else:
                 print("3$n$={} \\\\".format(sample_sizes_repeat[j]), file=f)
         
         for i in range(len(modelYs)*3):
             for j in range(len(sample_sizes)*2):
                 if j < len(sample_sizes)*2 - 1:
-                    print("{:.3f} & ".format(output[i,j]), end = '', file=f)
+                    if j == len(sample_sizes) - 1:
+                        print("{:.3f} & & ".format(output[i,j]), end = '', file=f)
+                    else:
+                        print("{:.3f} & ".format(output[i,j]), end = '', file=f)
                 else:
                     print("{:.3f} \\\\".format(output[i,j]), file=f)
             for j in range(len(sample_sizes)*2):
                 if j < len(sample_sizes)*2 - 1:
-                    print("({:.3f}) & ".format(cf_output[i,j]), end = '', file=f)
+                    if j == len(sample_sizes) - 1:
+                        print("({:.3f}) & & ".format(cf_output[i,j]), end = '', file=f)
+                    else:
+                        print("({:.3f}) & ".format(cf_output[i,j]), end = '', file=f)
                 else:
                     print("({:.3f}) \\\\".format(cf_output[i,j]), file=f)
         print("\n", file=f)
