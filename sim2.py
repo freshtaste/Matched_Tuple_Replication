@@ -52,7 +52,7 @@ class DGP3(DGP2):
             self.tuple_idx = self.tuple_idx.reshape(-1,self.tuple_size)
         
     def generate_X(self):
-        idx = np.random.choice(len(self.total), self.n, replace=False)
+        idx = np.random.choice(len(self.total), self.n, replace=True)
         total = self.total[idx]
         self.Xtotal = total[:,:-1]
         X = total[:,:self.Xdim]
@@ -163,7 +163,7 @@ def reject_prob_parrell(X, num_factor, Xdim, sample_size, tau=0, ntrials=1000, m
         more = True
         design = 'MT'
     def process(qk):
-        np.random.seed(123 + qk + num_factor*10 + Xdim)
+        np.random.seed(qk + num_factor*10 + Xdim)
         dgp = DGP3(num_factor, Xdim, sample_size, X, tau, more, design)
         Y, D, tuple_idx = dgp.Y, dgp.D, dgp.tuple_idx
         inf = Inferece2(Y, D, tuple_idx, design)
@@ -177,7 +177,7 @@ def risk_parrell(X, num_factor, Xdim, sample_size, tau=0, ntrials=1000, more=Fal
         more = True
         design = 'MT'
     def process(qk):
-        np.random.seed(123 + qk + num_factor*10 + Xdim)
+        np.random.seed(qk + num_factor*10 + Xdim)
         dgp = DGP3(num_factor, Xdim, sample_size, X, tau, more, design)
         Y, D, tuple_idx = dgp.Y, dgp.D, dgp.tuple_idx
         ate = np.mean(Y[D[:,0]==1]) - np.mean(Y[D[:,0]==0])

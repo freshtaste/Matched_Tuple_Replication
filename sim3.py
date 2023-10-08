@@ -53,7 +53,7 @@ class DGP3(DGP2):
             self.tuple_idx = self.tuple_idx.reshape(-1,self.tuple_size)
         
     def generate_X(self):
-        idx = np.random.choice(len(self.total), self.n, replace=False)
+        idx = np.random.choice(len(self.total), self.n, replace=True)
         total = self.total[idx]
         self.Xtotal = total[:,:-1]
         X = total[:,:self.Xdim]
