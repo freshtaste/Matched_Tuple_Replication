@@ -5,7 +5,7 @@ from joblib import Parallel, delayed
 import multiprocessing
 
 
-def get_inputed_outcome(df, method='homo'):
+def get_imputed_outcome(df, method='homo'):
     df = df.copy()
     if method == 'homo':
         df['Y0'] = df['Y'].copy()
@@ -163,7 +163,7 @@ def cover_rate(df, sample_size=900, modelY='homo', population='super', ntrials=2
     cover2 = np.zeros((ntrials, 3))
     cf_length1 = np.zeros((ntrials, 3))
     cf_length2 = np.zeros((ntrials, 3))
-    Ys = get_inputed_outcome(df, modelY)
+    Ys = get_imputed_outcome(df, modelY)
     for i in range(ntrials):
         dgp = DGP4(sample_size, df['strata'].values, df['continuous_covariate'].values, Ys.values)
         if population == 'super':
