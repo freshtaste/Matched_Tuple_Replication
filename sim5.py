@@ -50,7 +50,7 @@ def get_calibrated_outcome(df, method='homo'):
         eps = np.random.normal(0, np.sqrt(np.var(residuals)), size=len(df))
         
         covariates = covariates.values
-        gamma = 5
+        gamma = method
         df['Y0'] = covariates.dot(beta) + eps
         df['Y1'] = covariates.dot(beta)*gamma - np.mean(covariates.dot(beta)*(gamma-1)) + eps
         df['Y2'] = covariates.dot(beta)*gamma*2 - np.mean(covariates.dot(beta)*(gamma*2-1)) + eps
@@ -246,7 +246,7 @@ def get_table12():
     
     
     # start simulation
-    modelYs = ['homo','hetero']
+    modelYs = ['homo', 5, 3, 1]
     sample_sizes = [60, 120, 360, 750, 1200]
     populations = ['super', 'finite']
     
