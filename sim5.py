@@ -273,8 +273,3 @@ def get_table12():
                 else:
                     print("({:.3f}) \\\\".format(cf_output[i,j]), file=f)
         print("\n", file=f)
-        
-
-
-
-get_table12()
