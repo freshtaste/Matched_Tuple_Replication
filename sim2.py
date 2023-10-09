@@ -164,7 +164,7 @@ def reject_prob_parrell(X, num_factor, Xdim, sample_size, tau=0, ntrials=1000, m
         more = True
         design = 'MT'
     def process(qk):
-        np.random.seed(qk + num_factor*10 + Xdim)
+        np.random.seed(qk + num_factor*10 + Xdim*100)
         dgp = DGP3(num_factor, Xdim, sample_size, X, tau, more, design)
         Y, D, tuple_idx = dgp.Y, dgp.D, dgp.tuple_idx
         inf = Inferece2(Y, D, tuple_idx, design)
