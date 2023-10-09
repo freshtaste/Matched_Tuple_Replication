@@ -5,80 +5,46 @@ from joblib import Parallel, delayed
 import multiprocessing
 
 
-def get_imputed_outcome(df, method='homo'):
-    df = df.copy()
-    if method == 'homo':
-        df['Y0'] = df['Y'].copy()
-        df['Y1'] = df['Y'].copy()
-        df['Y2'] = df['Y'].copy()
-    else:
-        df['Y0'] = np.nan
-        df['Y1'] = np.nan
-        df['Y2'] = np.nan
-        for i in range(len(df)):
-            strata_i = df['strata'].iloc[i]
-            cov_i = df['continuous_covariate'].iloc[i]
-            treatment_i = df['treatment'].iloc[i]
-            df['Y{}'.format(treatment_i)].iloc[i] = df['Y'].iloc[i]
-            other_treatment = [0,1,2]
-            other_treatment.remove(treatment_i)
-            for t in other_treatment:
-                df_search = df.loc[(df['strata']==strata_i) & (df['treatment']==t)]
-                # find the row with column continuous_covariate closes to cov_i
-                df_search['dist'] = (df_search['continuous_covariate'] - cov_i).abs()
-                min_dist = df_search['dist'].min()
-                df['Y{}'.format(t)].iloc[i] = df_search.loc[df_search['dist']==min_dist, 'Y'].iloc[0]
-
-    return df[['Y0', 'Y1', 'Y2']]
-
-
-def get_calibrated_outcome(df, method='homo'):
-    df = df.copy()
-    if method == 'homo':
-        df['Y0'] = df['Y'].copy()
-        df['Y1'] = df['Y'].copy()
-        df['Y2'] = df['Y'].copy()
-    else:
-        covariates = df[['constant', 'male_male', 'female_female', 'male_mixed', 'female_mixed',
+def get_data(df):
+    covariates = df[['constant', 'male_male', 'female_female', 'male_mixed', 'female_mixed',
                         'highcapture','highcapital', 'continuous_covariate']]
-        model = sm.OLS(df['Y'], covariates)
-        result = model.fit()
-        beta = result.params
-        residuals = result.resid
-        #print("Variance of Y0 vs epsilon",np.var(df['Y']), np.var(residuals))
-        
-        eps = np.random.normal(0, np.sqrt(np.var(residuals)), size=len(df))
-        
-        covariates = covariates.values
-        gamma = method
-        df['Y0'] = covariates.dot(beta) + eps
-        df['Y1'] = covariates.dot(beta)*gamma - np.mean(covariates.dot(beta)*(gamma-1)) + eps
-        df['Y2'] = covariates.dot(beta)*gamma*2 - np.mean(covariates.dot(beta)*(gamma*2-1)) + eps
-
-    return df[['Y0', 'Y1', 'Y2']]
-            
+    model = sm.OLS(df['Y'], covariates)
+    result = model.fit()
+    beta = result.params
+    residuals = result.resid
+    return beta, np.var(residuals), covariates.values
 
 class DGP4():
-    def __init__(self, num_sample, Xdiscret, Xcontinuous, Ys):
+    def __init__(self, num_sample, X, Xdiscrete, Xcontinuous, beta, var_eps, gamma=0):
         self.num_sample = num_sample
-        self.Xdiscret = Xdiscret
+        self.X = X
+        self.Xdiscrete = Xdiscrete
         self.Xcontinuous = Xcontinuous
-        self.Ys = Ys
-        self.treatment = None
-        self.tuple_idx = None
-        self.tau1 = self.Ys[:,1].mean() - self.Ys[:,0].mean()
-        self.tau2 = self.Ys[:,2].mean() - self.Ys[:,0].mean()
+        self.beta = beta
+        self.var_eps = var_eps
+        self.gamma = gamma
         self.draw_samples()
-        
+    
     def draw_samples(self):
-        idx = np.random.choice(len(self.Ys), self.num_sample, replace=True)
-        self.Ys = self.Ys[idx]
-        self.Xdiscret = self.Xdiscret[idx]
-        self.Xcontinuous = self.Xcontinuous[idx]
+        idx = np.random.choice(len(self.X), self.num_sample, replace=True)
+        X = self.X[idx]
+        self.Xc = self.Xcontinuous[idx]
+        self.Xd = self.Xdiscrete[idx]
         
+        eps = np.random.normal(0, np.sqrt(self.var_eps), size=self.num_sample)
+        self.Y0 = X.dot(self.beta) + eps
+        self.Y1 = X.dot(self.beta) + X.dot(self.beta)*self.gamma - np.mean(X.dot(self.beta)*self.gamma) + eps
+        self.Y2 = X.dot(self.beta) + X.dot(self.beta)*self.gamma*2 - np.mean(X.dot(self.beta)*self.gamma*2) + eps
+        
+    def get_Y(self):
+        self.Y = np.zeros(self.num_sample)
+        self.Y[self.treatment==0] = self.Y0[self.treatment==0]
+        self.Y[self.treatment==1] = self.Y1[self.treatment==1]
+        self.Y[self.treatment==2] = self.Y2[self.treatment==2]
+    
     def get_treatment(self):
         # sort units by Xdiscret first and then Xcontinuous
-        idx = np.lexsort((self.Xcontinuous, self.Xdiscret))
+        idx = np.lexsort((self.Xc, self.Xd))
         idx = idx.reshape(-1,3)
         df = pd.DataFrame(idx)
         idx = df.apply(lambda x:np.random.shuffle(x) or x, axis=1).to_numpy()
@@ -95,13 +61,7 @@ class DGP4():
         values[:,1] = np.arange(len(idx))
         values[:,2] = np.arange(len(idx))
         self.cluster[idx] = values
-        
-    def get_Y(self):
-        self.Y = np.zeros(self.num_sample)
-        self.Y[self.treatment==0] = self.Ys[self.treatment==0,0]
-        self.Y[self.treatment==1] = self.Ys[self.treatment==1,1]
-        self.Y[self.treatment==2] = self.Ys[self.treatment==2,2]
-
+    
     def super_pop_draw(self):
         self.draw_samples()
         self.get_treatment()
@@ -184,19 +144,22 @@ class Inference3():
         return cover1, cover2
     
     
-def cover_rate(df, sample_size=900, modelY='homo', population='super', ntrials=2000):
+def cover_rate(df, sample_size=900, gamma=0, population='super', ntrials=2000):
     cover1 = np.zeros((ntrials, 3))
     cover2 = np.zeros((ntrials, 3))
     cf_length1 = np.zeros((ntrials, 3))
     cf_length2 = np.zeros((ntrials, 3))
-    Ys = get_calibrated_outcome(df, modelY)
+    tau1 = np.zeros((ntrials,))
+    beta, var_eps, covariates = get_data(df)
     for i in range(ntrials):
-        dgp = DGP4(sample_size, df['strata'].values, df['continuous_covariate'].values, Ys.values)
+        dgp = DGP4(sample_size, covariates, df['strata'].values, df['continuous_covariate'].values, beta, var_eps, gamma)
         if population == 'super':
             dgp.super_pop_draw()
         else:
             dgp.finite_pop_draw()
-        inf = Inference3(dgp.Y, dgp.treatment, dgp.cluster, dgp.tuple_idx, dgp.tau1, dgp.tau2)
+        inf = Inference3(dgp.Y, dgp.treatment, dgp.cluster, dgp.tuple_idx, 0, 0)
+        
+        tau1[i] = inf.tau1_hat
         
         cover1[i,0], cover2[i,0] = inf.inference('mp')
         cf_length1[i,0] = inf.se_tau10*1.96*2
@@ -243,34 +206,33 @@ def get_table12():
     # fill nan with 0
     df_wave6['Y'] = df_wave6['Y'].fillna(0)
     df_wave6['constant'] = 1
-    
-    
+  
     # start simulation
-    modelYs = ['homo', 5, 3, 1]
+    gammas = [0, 1, 3, 5]
     sample_sizes = [60, 120, 360, 750, 1200]
     populations = ['super', 'finite']
     
-    qkm_pairs = [(q,k,m) for q in modelYs for k in sample_sizes for m in populations]
+    gnm_pairs = [(g,n,m) for g in gammas for n in sample_sizes for m in populations]
     
-    def processInput(qkm):
-        q, k, m = qkm
-        np.random.seed(123 + modelYs.index(q)*100 + sample_sizes.index(k)*10 + populations.index(m))
-        cover1, cf1, cover2, cf2 = cover_rate(df_wave6, k, q, m, ntrials=1000)
-        return (q,k,m, cover1, cf1, cover2, cf2)
+    def processInput(gnm):
+        g, n, m = gnm
+        np.random.seed(123 + gammas.index(g)*100 + sample_sizes.index(n)*10 + populations.index(m))
+        cover1, cf1, cover2, cf2 = cover_rate(df_wave6, n, g, m, ntrials=1000)
+        return (g,n,m, cover1, cf1, cover2, cf2)
     
     num_cores = multiprocessing.cpu_count()
-    results = Parallel(n_jobs=num_cores)(delayed(processInput)(i) for i in qkm_pairs)
-    output = np.zeros((len(modelYs)*3,len(sample_sizes)*2))
-    cf_output = np.zeros((len(modelYs)*3,len(sample_sizes)*2))
-    for (q,k,m,cover1,cf1,cover2,cf2) in results:
+    results = Parallel(n_jobs=num_cores)(delayed(processInput)(i) for i in gnm_pairs)
+    output = np.zeros((len(gammas)*3,len(sample_sizes)*2))
+    cf_output = np.zeros((len(gammas)*3,len(sample_sizes)*2))
+    for (g,n,m,cover1,cf1,cover2,cf2) in results:
         if m == 'super':
-            i = modelYs.index(q)
-            j = sample_sizes.index(k)
+            i = gammas.index(g)
+            j = sample_sizes.index(n)
             output[i*3:i*3+3,j] = cover1
             cf_output[i*3:i*3+3,j] = cf1
         else:
-            i = modelYs.index(q)
-            j = sample_sizes.index(k)
+            i = gammas.index(g)
+            j = sample_sizes.index(n)
             output[i*3:i*3+3,j+len(sample_sizes)] = cover1
             cf_output[i*3:i*3+3,j+len(sample_sizes)] = cf1
             
@@ -286,7 +248,13 @@ def get_table12():
             else:
                 print("3$n$={} \\\\".format(sample_sizes_repeat[j]), file=f)
         
-        for i in range(len(modelYs)*3):
+        for i in range(len(gammas)*3):
+            if i % 3 == 0:
+                print("gamma={}".format(gammas[i//3]), file=f)
+            if i % 3 == 1:
+                print("&Robust& ", end = '', file=f)
+            if i % 3 == 2:
+                print("&BCVE& ", end = '', file=f)
             for j in range(len(sample_sizes)*2):
                 if j < len(sample_sizes)*2 - 1:
                     if j == len(sample_sizes) - 1:
@@ -295,6 +263,7 @@ def get_table12():
                         print("{:.3f} & ".format(output[i,j]), end = '', file=f)
                 else:
                     print("{:.3f} \\\\".format(output[i,j]), file=f)
+            print("&& ", end = '', file=f)
             for j in range(len(sample_sizes)*2):
                 if j < len(sample_sizes)*2 - 1:
                     if j == len(sample_sizes) - 1:
@@ -304,3 +273,8 @@ def get_table12():
                 else:
                     print("({:.3f}) \\\\".format(cf_output[i,j]), file=f)
         print("\n", file=f)
+        
+
+
+
+get_table12()
