@@ -40,7 +40,7 @@ from joblib import Parallel, delayed
 import multiprocessing
 
 
-def get_table9():
+def get_table8():
     # set random seed
     np.random.seed(123)
     modelYs = ['1','2','3','4','5','6']
@@ -70,7 +70,7 @@ def get_table9():
         out = [cover[0], cf[0], cover[1], cf[1], cover[2], cf[2]]
         output[i*6:i*6+6,j] = out
     print(output)
-    pd.DataFrame(output).to_csv("Table9_part1.csv")
+    pd.DataFrame(output).to_csv("Table8_part1.csv")
     
     def processInput2(qk):
         q, k = qk
@@ -94,4 +94,4 @@ def get_table9():
         out = [cover[0], cf[0], cover[1], cf[1], cover[2], cf[2]]
         output[i*6:i*6+6,j] = out
     print(output)
-    pd.DataFrame(output).to_csv("Table9_part2.csv")
+    pd.DataFrame(output).to_csv("Table8_part2.csv")

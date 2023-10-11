@@ -39,7 +39,7 @@ def risk_parrell(n, modelY='1', modelDA='1', ate=0, ntrials=1000):
         theta12s[i] = ret[i][4]
     return tau11s, tau10s, theta1s, theta2s, theta12s
 
-
+"""
 def get_table8():
     # set random seed
     np.random.seed(123)
@@ -71,7 +71,7 @@ def get_table8():
                 #     else:
                 #         print("{:.3f} \\\\".format(mse[r,k]), file=f)
             print("\n", file=f)
-            
+"""
 
 def get_table3():
     # set random seed

@@ -1,8 +1,8 @@
-from sim1 import get_table3, get_table4, get_table8
+from sim1 import get_table3, get_table4
 from sim2 import get_table5, get_table6, get_table10
 from sim3 import get_Figure1_and_2
-from sim4 import get_table9
-from sim5 import get_table12
+from sim4 import get_table8
+from sim5 import get_table9
 from empirical_results import get_Table7, get_table11
 import random
 
@@ -37,6 +37,3 @@ get_table10()
 
 # 10. get Table 11
 get_table11()
-
-# 11. get Table 12
-get_table12()

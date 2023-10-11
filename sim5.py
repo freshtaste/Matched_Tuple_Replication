@@ -176,7 +176,7 @@ def cover_rate(df, sample_size=900, gamma=0, population='super', ntrials=2000):
     return np.mean(cover1, axis=0), np.mean(cf_length1, axis=0), np.mean(cover2, axis=0), np.mean(cf_length2, axis=0)
 
 
-def get_table12():
+def get_table9():
     # set random seed
     np.random.seed(123)
     ghana = 'GHA_2008_MGFERE_v01_M_Stata8/ReplicationDataGhanaJDE.dta'
@@ -237,7 +237,7 @@ def get_table12():
             cf_output[i*3:i*3+3,j+len(sample_sizes)] = cf1
             
     # print out output and cf_output rows by rows to file
-    with open("Table12.txt", "a") as f:
+    with open("Table9.txt", "a") as f:
         sample_sizes_repeat = sample_sizes*2
         for j in range(len(sample_sizes)*2):
             if j < len(sample_sizes)*2 - 1:
