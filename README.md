@@ -18,3 +18,5 @@ version.string R version 3.5.1 (2018-07-02)
 nickname       Feather Spray     
 
 nbpMatching version: 1.5.1
+
+### Execute main.py to generate all tables and figures in the paper
