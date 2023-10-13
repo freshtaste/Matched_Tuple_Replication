@@ -262,7 +262,7 @@ def get_Figure1_and_2():
         axs[i].set_title(r'Dim$(X_i)={}, K={}$'.format(q,k), fontdict={'fontsize': 30, 'fontweight': 'medium'})
         axs[i].legend(prop={'size': 24})
         
-    plt.savefig("Figure2.pdf")
+    plt.savefig("Figure1.pdf")
 
 
     fig, axs = plt.subplots(1, 3, figsize=(30,12))
@@ -287,4 +287,4 @@ def get_Figure1_and_2():
         axs[i].set_title(r'Dim$(X_i)={}, K={}$'.format(q,k), fontdict={'fontsize': 30, 'fontweight': 'medium'})
         axs[i].legend(prop={'size': 24})
         
-    plt.savefig("Figure1.pdf")
+    plt.savefig("Figure2.pdf")
