@@ -81,7 +81,7 @@ def get_table3():
         print("ModelY={} (MSE)".format(i+1))
         mse = np.zeros((11,5))
         for j in range(11):
-            tau11s, tau10s, theta1s, theta2s, theta12s = risk_parrell(1000, modelY=str(i+1), modelDA=str(j+1), ntrials=2000)
+            tau11s, tau10s, theta1s, theta2s, theta12s = risk_parrell(1000, modelY=str(i+1), modelDA=str(j+1), ntrials=4000)
             mse[j,0] = np.mean(theta1s**2)
             mse[j,1] = np.mean(theta2s**2)
             mse[j,2] = np.mean(theta12s**2)
