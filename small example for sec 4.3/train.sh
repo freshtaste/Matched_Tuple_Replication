@@ -21,7 +21,6 @@ echo "Num Cores: $SLURM_JOB_CPUS_PER_NODE"
 module purge
 module load anaconda/2021.05
 module load R/3.6/3.6.2
-source /apps/Anaconda/anaconda3-2021.05/etc/profile.d/conda.sh
-conda activate hanabi
+source /apps/conda/miniconda3/bin/activate hanabi
 
 python small_example.py
