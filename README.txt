@@ -1,7 +1,7 @@
 Code documentation for Bai et al. (2023) "Inference for Matched Tuples and Fully Blocked Factorial Designs"
 ============================================================================================================
 
-Execute "main.py" to generate all tables and figures in the paper. Execute "small exanple for sec 4.3/small_example.py" to generate tables and figures for the simulation study in Section 4.3 with a smaller number of Monte Carlo replications.
+Execute "main.py" to generate all tables and figures in the paper. Execute "small example for sec 4.3/small_example.py" to generate tables and figures for the simulation study in Section 4.3 with a smaller number of Monte Carlo replications.
 
 The simulations and empirical applictions were completed using a computer server with 60 CPU cores. The total estimated runtime is approximately 20-30 hours. The small example is expected to complete in approximately 1-2 hours.
 
