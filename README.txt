@@ -38,3 +38,42 @@ rpy2 version: 3.5.1
 ------------------------------------------------------------------------------------------------------------
 
 Note: For the simulation study in Section 4.3, we use the "rpy2" package to connect to the R package "nbpMatching". R and nbpMatching should be installed and running properly before executing the Python program. 
+
+
+------------------------------------------------------------------------------------------------------------
+
+An example installation on a free trial AWS server (1 CPU and 1GB of RAM):
+
+1. Install miniconda
+mkdir -p ~/miniconda3
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+rm -rf ~/miniconda3/miniconda.sh
+
+~/miniconda3/bin/conda init bash
+~/miniconda3/bin/conda init zsh
+
+2. Install Python and packages
+
+conda create --name myenv python=3.8.8
+conda activate myenv
+
+conda install numpy=1.20.1
+conda install joblib=1.0.1
+conda install statsmodels=0.12.2
+conda install scipy=1.6.2
+conda install pandas=1.2.4
+
+3. Install R and nbpMatching
+
+sudo apt update
+sudo apt install r-base
+
+install.packages("ggplot2")
+install.packages("rmarkdown")
+install.packages("Hmisc")
+
+install.packages("nbpMatching")
+
+4. Install rpy2 (R installation is required for installing rpy2)
+pip install rpy2==3.5.1
