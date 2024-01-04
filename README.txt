@@ -1,6 +1,27 @@
 Code documentation for Bai et al. (2023) "Inference for Matched Tuples and Fully Blocked Factorial Designs"
 ============================================================================================================
 
+Description of content
+
+The replication package includes:
+1. Python files that contain code for simulation results (Section 4) and the empirical application (Section 5)
+2. PDF files that contain generated figures
+3. TXT and csv files that contain generated tables
+4. Bash file (train.sh) that contain scripts used to submit jobs to computing clusters
+5. Folders (FactorialData, GHA_2008_MGFERE_v01_M_Stata8) that contain the data for simulation and empirical application
+6. A folder named "small example for sec 4.3" that contains code (small_example.py), a bash file (train.sh) and outputs (pdf, csv and txt files) for the simulation in Section 4.3 with a smaller number of Monte Carlo replications
+7. A README file
+
+------------------------------------------------------------------------------------------------------------
+
+Hardware specifications 
+
+32 G RAM, 60 CPU
+
+------------------------------------------------------------------------------------------------------------
+
+Instructions
+
 Execute "main.py" to generate all tables and figures in the paper. Execute "small example for sec 4.3/small_example.py" to generate tables and figures for the simulation study in Section 4.3 with a smaller number of Monte Carlo replications.
 
 The simulations and empirical applictions were completed using a computer server with 60 CPU cores. The total estimated runtime is approximately 20-30 hours. The small example is expected to complete in approximately 1-2 hours.
